@@ -31,18 +31,18 @@ from .linkheader import find_signposting_http_link
 
 def find_signposting_linkset(uri:Union[AbsoluteURI, str], acceptType:Union[MediaType, str]=None) -> Signposting:
     """Parse linkset to find <link> elements for signposting.
-    
+
     HTTP redirects will be followed.
 
     :param uri: An absolute http/https URI, which HTML will be inspected.
-    :param acceptType: A `MediaType` to content-negotiate access for. 
-        The default is to content-negotiate including ``application/linkset`` and 
+    :param acceptType: A `MediaType` to content-negotiate access for.
+        The default is to content-negotiate including ``application/linkset`` and
         ``application/linkset+json`` with JSON having preference.
     :throws ValueError: If the `uri` is invalid
     :throws IOError: If the network request failed, e.g. connection timeout
     :throws requests.HTTPError: If the HTTP request failed, e.g. 404 Not Found
-    :throws UnrecognizedContentType: If the HTTP resource was not a recognized linkset content type. 
-        This exception is also raised if ``acceptType`` was provided, 
+    :throws UnrecognizedContentType: If the HTTP resource was not a recognized linkset content type.
+        This exception is also raised if ``acceptType`` was provided,
         but didn't match returned ``Content-Type``.
     :throws HTMLParser.HTMLParseError: If the HTML could not be parsed.
     :returns: A parsed `Signposting` object (which may be empty)
@@ -76,9 +76,9 @@ def _get_linkset(uri:AbsoluteURI, acceptType:MediaType=None) -> Union[LinksetJSO
 
     resolved_url = AbsoluteURI(page.url, uri)
 
-    # Note: According to HTTP/1.1 updates (Appendix B) in 
+    # Note: According to HTTP/1.1 updates (Appendix B) in
     # https://datatracker.ietf.org/doc/html/rfc7231
-    # then Content-Location should NO LONGER be used for 
+    # then Content-Location should NO LONGER be used for
     # resolving relative URI references.
     ##if "Content-Location" in page.headers:
     ##    # More specific, e.g. "index.en.html" - parse as relative URI reference
@@ -89,11 +89,11 @@ def _get_linkset(uri:AbsoluteURI, acceptType:MediaType=None) -> Union[LinksetJSO
                     resolved_url)
     # raise requests.HTTPError for any other 4xx/5xx error
     page.raise_for_status()
-    
+
     ct = page.headers.get("Content-Type", "")
     if acceptType and not acceptType in ct:
         # mismatch from what we requested explicitly
-        raise UnrecognizedContentType(ct, uri)    
+        raise UnrecognizedContentType(ct, uri)
     elif "application/linkset+json" in ct or "json" in ct:
         return LinksetJSON(page.text, ct, uri, resolved_url)
     elif "application/linkset" in ct or "text/plain" in ct:
@@ -101,7 +101,7 @@ def _get_linkset(uri:AbsoluteURI, acceptType:MediaType=None) -> Union[LinksetJSO
         return Linkset(page.text, ct, uri, resolved_url)
     else:
         # HTTP server didn't honor our default Accept header, we'll bail out here.
-        raise UnrecognizedContentType(ct, uri)    
+        raise UnrecognizedContentType(ct, uri)
 
 def _parse_linkset(linkset:Linkset) -> Signposting:
     # RFC9264 is based on RFC8288 but also permits newlines.
@@ -122,7 +122,7 @@ def _parse_linkset_json(linkset:LinksetJSON) -> Signposting:
             # The linkset itself
             anchor = linkset.resolved_url
         for rel in link_context:
-            if rel == "anchor": 
+            if rel == "anchor":
                 # Not a link relation, handled above
                 continue
             if not rel in SIGNPOSTING:
@@ -139,9 +139,9 @@ def _parse_linkset_json(linkset:LinksetJSON) -> Signposting:
                 href = link_target["href"]
                 type = link_target.get("type")
                 profile = link_target.get("profile")
-                # Signposting ignores the other attributes for now. 
+                # Signposting ignores the other attributes for now.
                 # TODO: parse them into a Link object for equivalence with
-                # _parse_linkset() 
+                # _parse_linkset()
                 s = Signpost(rel, href, type, profile, anchor)
                 signposts.append(s)
     if not signposts:

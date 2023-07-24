@@ -37,7 +37,7 @@ RDF library like :mod:`rdflib`.
 
 This library also provide ways to discover
 FAIR signposting in HTML ``<link>`` annotations and in
-`Link set`_ documents.  Future versions may provide ways to 
+`Link set`_ documents.  Future versions may provide ways to
 discover/merge these concurrently.
 
 .. _signposting: https://signposting.org/conventions/
