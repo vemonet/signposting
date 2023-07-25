@@ -67,26 +67,8 @@ Source = "https://github.com/stain/signposting"
 Discussion = "https://github.com/stain/signposting/discussions"
 
 
-# ENVIRONMENTS AND SCRIPTS
-[tool.hatch.envs.default]
-features = [
-    "test",
-    "docs",
-]
-
-[tool.hatch.envs.default.scripts]
-test = [
-    "tox {args}",
-]
-cov = [
-    "tox {args}",
-    "python -c 'import webbrowser; webbrowser.open(\"http://0.0.0.0:3000\")'",
-    "python -m http.server 3000 --directory ./htmlcov",
-]
-
 
 # TOOLS
-
 [tool.hatch.build]
 sources = ["src"]
 
