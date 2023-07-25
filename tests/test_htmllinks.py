@@ -16,11 +16,12 @@
 #   limitations under the License.
 """Test htmllinks parsing."""
 
-import warnings
+import importlib.resources
 import unittest
+import warnings
+
 import requests
 import requests_mock
-import importlib.resources
 
 from signposting import htmllinks
 from signposting.signpost import AbsoluteURI

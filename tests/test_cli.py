@@ -16,11 +16,12 @@
 #   limitations under the License.
 """Test the command line tool"""
 
-import unittest
 import os
-from signposting import cli
 import sys
+import unittest
 import warnings
+
+from signposting import cli
 
 
 class TestCommandLineToolParsing(unittest.TestCase):
@@ -48,8 +49,8 @@ class TestCommandLineTool(unittest.TestCase):
         self.assertEqual(cli.errors.OK, exit)
 
     def test_many(self):
-        exit = cli.main("https://w3id.org/a2a-fair-metrics/01-http-describedby-only/", 
-            "https://w3id.org/a2a-fair-metrics/02-html-full/", 
+        exit = cli.main("https://w3id.org/a2a-fair-metrics/01-http-describedby-only/",
+            "https://w3id.org/a2a-fair-metrics/02-html-full/",
             "https://w3id.org/a2a-fair-metrics/03-http-citeas-only/")
         self.assertEqual(cli.errors.OK, exit)
 

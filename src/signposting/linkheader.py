@@ -18,10 +18,12 @@
 Parse HTTP headers to find Signposting links
 """
 
-from typing import List, Tuple, Optional
-from httplink import ParsedLinks, Link, parse_link_header
+from typing import List, Optional, Tuple
 from urllib.parse import urljoin
-from .signpost import SIGNPOSTING, Signpost, Signposting, LinkRel
+
+from httplink import Link, ParsedLinks, parse_link_header
+
+from .signpost import SIGNPOSTING, LinkRel, Signpost, Signposting
 
 
 def _filter_links_by_rel(parsedLinks: ParsedLinks, *rels: str) -> List[Link]:
@@ -36,7 +38,7 @@ def _filter_links_by_rel(parsedLinks: ParsedLinks, *rels: str) -> List[Link]:
     """
     if rels:
         # Ensure all filters are in lower case
-        filterRels = set(r.lower() for r in rels)
+        filterRels = {r.lower() for r in rels}
         unknown = filterRels - SIGNPOSTING
         if unknown:
             raise ValueError("Unknown FAIR Signposting relations: %s" % unknown)
@@ -58,7 +60,7 @@ def _optional_link(parsedLinks: ParsedLinks, rel: str) -> Optional[Link]:
     :param rel: The link relation to look up by, e.g. ``author``
     :return: The found ``Link``, or ``None`` if not found.
     """
-    if not rel.lower() in SIGNPOSTING:
+    if rel.lower() not in SIGNPOSTING:
         raise ValueError("Unknown FAIR Signposting relation: %s" % rel)
     if rel in parsedLinks:
         return parsedLinks[rel]
@@ -77,8 +79,8 @@ def _link_attr(link: Link, key: str) -> Optional[str]:
         return link[key]
     return None
 
-def linkToSignpost(link: Link, rel: LinkRel, context_url: str = None) -> Signpost:
-    """Convert from a :class:`Link` to a :class:`Signpost` 
+def linkToSignpost(link: Link, rel: LinkRel, context_url: Optional[str] = None) -> Signpost:
+    """Convert from a :class:`Link` to a :class:`Signpost`
     object for a given link relation.
 
     :param link: The :class:`Link` to convert
@@ -92,7 +94,7 @@ def linkToSignpost(link: Link, rel: LinkRel, context_url: str = None) -> Signpos
         _link_attr(link, "profile"),
         context, link)
 
-def linksToSignposting(links: List[Link], context: str = None) -> Signposting:
+def linksToSignposting(links: List[Link], context: Optional[str] = None) -> Signposting:
         """Initialize Signposting object for a given `ParsedLinks`
         as discovered from the (optional) `context` base URL.
 
@@ -121,13 +123,13 @@ def _absolute_attribute(k: str, v: str, baseurl: str) -> Tuple[str, str]:
     return k, v
 
 
-def find_signposting_http_link(headers: List[str], baseurl: str = None) -> Signposting:
+def find_signposting_http_link(headers: List[str], baseurl: Optional[str] = None) -> Signposting:
     """Find signposting among HTTP Link headers.
 
     Links are discovered according to defined `FAIR`_ `signposting`_ relations.
 
-    :param headers: A list of individual HTTP ``Link`` headers. 
-        The headers should be valid according to `RFC8288`_, 
+    :param headers: A list of individual HTTP ``Link`` headers.
+        The headers should be valid according to `RFC8288`_,
         excluding the ``"Link:"`` prefix.
     :param baseurl: Optional base URL to make relative link targets absolute from
     :return: A :class:`Signposting` of the collected signposts.

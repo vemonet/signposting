@@ -49,7 +49,6 @@ discover/merge these concurrently.
 
 __version__ = '0.9.2'
 
-from typing import List
 import warnings
 from .signpost import Signposting, Signpost, AbsoluteURI, MediaType, LinkRel
 from .linkheader import find_signposting_http_link

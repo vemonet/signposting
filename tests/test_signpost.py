@@ -17,16 +17,22 @@
 """Test Signpost classes"""
 
 import itertools
-from multiprocessing.sharedctypes import Value
 import unittest
-import warnings
 import uuid
-
-from httplink import Link
+import warnings
 from enum import Enum
 
+from httplink import Link
+
 import signposting.signpost
-from signposting.signpost import Signpost, AbsoluteURI, MediaType, LinkRel, Signposting, SIGNPOSTING
+from signposting.signpost import (
+    SIGNPOSTING,
+    AbsoluteURI,
+    LinkRel,
+    MediaType,
+    Signpost,
+    Signposting,
+)
 
 
 class TestAbsoluteURI(unittest.TestCase):
@@ -311,19 +317,19 @@ class TestSignpost(unittest.TestCase):
 
     def testConstructorUnknownRel(self):
         with self.assertRaises(ValueError):
-            s = Signpost(
+            Signpost(
                 "stylesheet",
                 "http://example.com/style.css")
 
     def testConstructorInvalidURI(self):
         with self.assertRaises(ValueError):
-            s = Signpost(
+            Signpost(
                 "cite-as",
                 "10.1234/not-a-url")
 
     def testConstructorInvalidMediaType(self):
         with self.assertRaises(ValueError):
-            s = Signpost(
+            Signpost(
                 "item",
                 "http://example.com/download/1.pdf",
                 "pdf"  # should be "application/pdf"
@@ -331,7 +337,7 @@ class TestSignpost(unittest.TestCase):
 
     def testConstructorInvalidProfiles(self):
         with self.assertRaises(ValueError):
-            s = Signpost(
+            Signpost(
                 "item",
                 "http://example.com/download/1.pdf",
                 profiles="https:/example.org/first-ok second-not-absolute"
@@ -650,7 +656,7 @@ class TestSignposting(unittest.TestCase):
             Signpost(LinkRel.item, "http://example.com/item/1.pdf"),
             Signpost(LinkRel.item, "http://example.com/item/2.txt")])
         self.assertEqual({"http://example.com/item/1.pdf", "http://example.com/item/2.txt"},
-                         set(str(i.target) for i in s.items))
+                         {str(i.target) for i in s.items})
 
     def testConstructorComplete(self):
         s = Signposting("http://example.com/page1", [
@@ -681,23 +687,23 @@ class TestSignposting(unittest.TestCase):
         self.assertEqual({
             "http://example.com/item/1.pdf",
             "http://example.com/item/2.txt"},
-            set(i.target for i in s.items))
+            {i.target for i in s.items})
         self.assertEqual({
             "http://example.com/author/1",
             "http://example.com/author/2"},
-            set(i.target for i in s.authors))
+            {i.target for i in s.authors})
         self.assertEqual({
             "http://example.com/metadata/1.ttl",
             "http://example.com/metadata/2.jsonld"},
-            set(i.target for i in s.describedBy))
+            {i.target for i in s.describedBy})
         self.assertEqual({
             "http://example.com/linkset/1.json",
             "http://example.com/linkset/2.txt"},
-            set(i.target for i in s.linksets))
+            {i.target for i in s.linksets})
         self.assertEqual({
             "http://example.org/type/A",
             "http://example.org/type/B"},
-            set(i.target for i in s.types))
+            {i.target for i in s.types})
 
     def testReprComplete(self):
         s = Signposting("http://example.com/page1", [
@@ -770,7 +776,7 @@ class TestSignposting(unittest.TestCase):
             Signpost(LinkRel.item, "http://example.com/item/4.jpeg", context="http://example.com/page4"),
         }
         signposting = Signposting("http://example.com/page1", signposts|others)
-        iterated = {s for s in signposting}
+        iterated = set(signposting)
         self.assertEqual(signposts, iterated) # Excluding others
         # here they all are!
         self.assertEqual(signposts|others, signposting.signposts)
@@ -1048,7 +1054,7 @@ class TestSignposting(unittest.TestCase):
             Signpost(LinkRel.author, "http://example.com/author/2"),
         ]
         with self.assertRaises(TypeError):
-            c = a | b
+            a | b
         # .. as B is not instance of Signposting with unknown context, it can't be merged
 
     def testMergeNoContext(self):

@@ -21,13 +21,16 @@ Parse linkset documents (`RFC9264`_) for signposting.
 .. _RFC9264: https://www.rfc-editor.org/rfc/rfc9264.html
 """
 
-from typing import List, Union
-import warnings
-import requests
 import json
-from .signpost import SIGNPOSTING,AbsoluteURI,Signpost,Signposting,MediaType
-from .htmllinks import DownloadedText,UnrecognizedContentType
+import warnings
+from typing import List, Union
+
+import requests
+
+from .htmllinks import DownloadedText, UnrecognizedContentType
 from .linkheader import find_signposting_http_link
+from .signpost import SIGNPOSTING, AbsoluteURI, MediaType, Signpost, Signposting
+
 
 def find_signposting_linkset(uri:Union[AbsoluteURI, str], acceptType:Union[MediaType, str]=None) -> Signposting:
     """Parse linkset to find <link> elements for signposting.
@@ -91,7 +94,7 @@ def _get_linkset(uri:AbsoluteURI, acceptType:MediaType=None) -> Union[LinksetJSO
     page.raise_for_status()
 
     ct = page.headers.get("Content-Type", "")
-    if acceptType and not acceptType in ct:
+    if acceptType and acceptType not in ct:
         # mismatch from what we requested explicitly
         raise UnrecognizedContentType(ct, uri)
     elif "application/linkset+json" in ct or "json" in ct:
@@ -112,7 +115,7 @@ def _parse_linkset(linkset:Linkset) -> Signposting:
 
 def _parse_linkset_json(linkset:LinksetJSON) -> Signposting:
     linksetJSON = json.loads(linkset)
-    if not "linkset" in linksetJSON or not isinstance(linksetJSON["linkset"], list):
+    if "linkset" not in linksetJSON or not isinstance(linksetJSON["linkset"], list):
         raise ValueError("Not a valid RFC9264 JSON, top list 'linkset' required")
     signposts: List[Signpost] = []
     for link_context in linksetJSON["linkset"]:
@@ -125,7 +128,7 @@ def _parse_linkset_json(linkset:LinksetJSON) -> Signposting:
             if rel == "anchor":
                 # Not a link relation, handled above
                 continue
-            if not rel in SIGNPOSTING:
+            if rel not in SIGNPOSTING:
                 # Not a signposting relation, ignored
                 continue
             # Proceed to find signposts
@@ -133,7 +136,7 @@ def _parse_linkset_json(linkset:LinksetJSON) -> Signposting:
                 warnings.warn("Not an array, ignoring link targets for rel=%s" % rel)
                 continue
             for link_target in link_context[rel]:
-                if not "href" in link_target:
+                if "href" not in link_target:
                     warnings.warn("Missing required 'href' attribute, ignoring link target for rel=%s" % rel)
                     continue
                 href = link_target["href"]

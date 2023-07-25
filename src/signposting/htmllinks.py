@@ -18,11 +18,14 @@
 Parse HTML to find <link> elements for signposting.
 """
 
-from typing import Union
 import warnings
+from typing import Union
+
 import requests
-from bs4 import BeautifulSoup,SoupStrainer
-from .signpost import SIGNPOSTING,AbsoluteURI,Signpost,Signposting
+from bs4 import BeautifulSoup, SoupStrainer
+
+from .signpost import SIGNPOSTING, AbsoluteURI, Signpost, Signposting
+
 
 def find_signposting_html(uri:Union[AbsoluteURI, str]) -> Signposting:
     """Parse HTML to find ``<link>`` elements for signposting.
@@ -57,8 +60,8 @@ class DownloadedText(str):
         # NOTE: Do not return value if it's already an DownloadedText
         # instance; it may differ in the other attributes or subclass
         s = super().__new__(cls, value)
-        # NOTE: content_type is necessarily a signpost.MediaType, 
-        # as this string typically include charset, e.g. 
+        # NOTE: content_type is necessarily a signpost.MediaType,
+        # as this string typically include charset, e.g.
         # "text/html; charset=iso-8859-1"
         s.content_type = content_type
         s.requested_url = requested_url
@@ -75,7 +78,7 @@ class XHTML(DownloadedText):
 
 class UnrecognizedContentType(Exception):
     def __init__(self, content_type:str, uri:AbsoluteURI):
-        super().__init__("Unrecognized content-type %s for <%s>" % (content_type, uri))
+        super().__init__(f"Unrecognized content-type {content_type} for <{uri}>")
         self.content_type = content_type
         self.uri = uri
 
@@ -88,9 +91,9 @@ def _get_html(uri:AbsoluteURI) -> Union[HTML,XHTML]:
 
     resolved_url = AbsoluteURI(page.url, uri)
     
-    # Note: According to HTTP/1.1 updates (Appendix B) in 
+    # Note: According to HTTP/1.1 updates (Appendix B) in
     # https://datatracker.ietf.org/doc/html/rfc7231
-    # then Content-Location should NO LONGER be used for 
+    # then Content-Location should NO LONGER be used for
     # resolving relative URI references.
     ##if "Content-Location" in page.headers:
     ##    # More specific, e.g. "index.en.html" - parse as relative URI reference
@@ -123,7 +126,7 @@ def _get_html(uri:AbsoluteURI) -> Union[HTML,XHTML]:
         raise UnrecognizedContentType(ct, uri)
 
 def _parse_html(html:Union[HTML,XHTML]) -> Signposting:
-    soup = BeautifulSoup(html, 'html.parser', 
+    soup = BeautifulSoup(html, 'html.parser',
         # Ignore any other elements to reduce chance of parse errors
         parse_only=SoupStrainer(["head", "link"]))
     signposts = []
@@ -136,13 +139,13 @@ def _parse_html(html:Union[HTML,XHTML]) -> Signposting:
                 continue
             type = link.get("type")
             profiles = link.get("profile")
-            rels = set(r.lower() for r in link.get("rel", [])
-                        if r.lower() in SIGNPOSTING)
+            rels = {r.lower() for r in link.get("rel", [])
+                        if r.lower() in SIGNPOSTING}
             for rel in rels:
                 try:
                     signpost = Signpost(rel, url, type, profiles, html.resolved_url)
                 except ValueError as e:
-                    warnings.warn("Ignoring invalid signpost from %s: %s" % (html.requested_url, e))
+                    warnings.warn("Ignoring invalid signpost from {}: {}".format(html.requested_url, e))
                     continue
                 signposts.append(signpost)
     if not signposts:

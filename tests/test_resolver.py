@@ -16,14 +16,14 @@
 #   limitations under the License.
 """Test the resolver"""
 
+import os
 import unittest
+import urllib.error
+import warnings
 
 from signposting.resolver import find_signposting_http
 from signposting.signpost import LinkRel
-import urllib.error
 
-import os
-import warnings
 
 @unittest.skipIf(os.environ.get("CI"), "Integration tests requires network access")
 class TestResolverA2A(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestResolverA2A(unittest.TestCase):
     def test_01_describedby(self):
         s = find_signposting_http(
             "https://w3id.org/a2a-fair-metrics/01-http-describedby-only/")
-        self.assertEqual({d.target for d in s.describedBy}, 
+        self.assertEqual({d.target for d in s.describedBy},
             {"https://s11.no/2022/a2a-fair-metrics/01-http-describedby-only/index.ttl"})
         self.assertEqual({d.type for d in s.describedBy}, {None})
 
@@ -63,9 +63,9 @@ class TestResolverA2A(unittest.TestCase):
             "https://w3id.org/a2a-fair-metrics/05-http-describedby-citeas/")
         self.assertEqual(s.citeAs.target,
                          "https://w3id.org/a2a-fair-metrics/05-http-describedby-citeas/")
-        self.assertEqual({d.target for d in s.describedBy}, 
+        self.assertEqual({d.target for d in s.describedBy},
             {"https://s11.no/2022/a2a-fair-metrics/05-http-describedby-citeas/index.ttl"})
-        self.assertEqual({d.type for d in s.describedBy}, 
+        self.assertEqual({d.type for d in s.describedBy},
             {"text/turtle"})
 
     def test_06_describedby_citeas_item(self):
@@ -73,11 +73,11 @@ class TestResolverA2A(unittest.TestCase):
             "https://w3id.org/a2a-fair-metrics/06-http-citeas-describedby-item/")
         self.assertEqual(s.citeAs.target,
                          "https://w3id.org/a2a-fair-metrics/06-http-citeas-describedby-item/")
-        self.assertEqual({d.target for d in s.describedBy}, 
+        self.assertEqual({d.target for d in s.describedBy},
             {"https://s11.no/2022/a2a-fair-metrics/06-http-citeas-describedby-item/index.ttl"})
         self.assertEqual({d.type for d in s.describedBy}, {"text/turtle"})
         self.assertEqual({i.type for i in s.items}, {"text/csv"})
-        self.assertEqual({i.target for i in s.items}, 
+        self.assertEqual({i.target for i in s.items},
             {"https://s11.no/2022/a2a-fair-metrics/06-http-citeas-describedby-item/test-apple-data.csv"})
 
     def test_07_describedby_citeas_linkset(self):
@@ -85,10 +85,10 @@ class TestResolverA2A(unittest.TestCase):
             "https://w3id.org/a2a-fair-metrics/07-http-describedby-citeas-linkset-json/")
         self.assertEqual(s.citeAs.target,
                          "https://w3id.org/a2a-fair-metrics/07-http-describedby-citeas-linkset-json/")
-        self.assertEqual({d.target for d in s.describedBy}, 
+        self.assertEqual({d.target for d in s.describedBy},
             {"https://s11.no/2022/a2a-fair-metrics/07-http-describedby-citeas-linkset-json/index.ttl"})
         self.assertEqual({d.type for d in s.describedBy}, {"text/turtle"})
-        self.assertEqual({l.target for l in s.linksets}, 
+        self.assertEqual({l.target for l in s.linksets},
             {"https://s11.no/2022/a2a-fair-metrics/07-http-describedby-citeas-linkset-json/linkset.json"})
         self.assertEqual({l.type for l in s.linksets}, {"application/linkset+json"})
 
@@ -97,10 +97,10 @@ class TestResolverA2A(unittest.TestCase):
             "https://w3id.org/a2a-fair-metrics/08-http-describedby-citeas-linkset-txt/")
         self.assertEqual(s.citeAs.target,
                          "https://w3id.org/a2a-fair-metrics/08-http-describedby-citeas-linkset-txt/")
-        self.assertEqual({d.target for d in s.describedBy}, 
+        self.assertEqual({d.target for d in s.describedBy},
             {"https://s11.no/2022/a2a-fair-metrics/08-http-describedby-citeas-linkset-txt/index.ttl"})
         self.assertEqual({d.type for d in s.describedBy}, {"text/turtle"})
-        self.assertEqual({l.target for l in s.linksets}, 
+        self.assertEqual({l.target for l in s.linksets},
             {"https://s11.no/2022/a2a-fair-metrics/08-http-describedby-citeas-linkset-txt/linkset.txt"})
         self.assertEqual({l.type for l in s.linksets}, {"application/linkset"})
         # TODO: Check content of linkset
@@ -110,12 +110,12 @@ class TestResolverA2A(unittest.TestCase):
             "https://w3id.org/a2a-fair-metrics/09-http-describedby-citeas-linkset-json-txt/")
         self.assertEqual(s.citeAs.target,
                          "https://w3id.org/a2a-fair-metrics/09-http-describedby-citeas-linkset-json-txt/")
-        self.assertEqual({d.target for d in s.describedBy}, 
+        self.assertEqual({d.target for d in s.describedBy},
             {"https://s11.no/2022/a2a-fair-metrics/09-http-describedby-citeas-linkset-json-txt/index.ttl"})
         self.assertEqual({d.type for d in s.describedBy}, {"text/turtle"})
         self.assertEqual({l.type for l in s.linksets}, {"application/linkset+json", "application/linkset"})
-        self.assertEqual({l.target for l in s.linksets}, 
-            {"https://s11.no/2022/a2a-fair-metrics/09-http-describedby-citeas-linkset-json-txt/linkset.json", 
+        self.assertEqual({l.target for l in s.linksets},
+            {"https://s11.no/2022/a2a-fair-metrics/09-http-describedby-citeas-linkset-json-txt/linkset.json",
              "https://s11.no/2022/a2a-fair-metrics/09-http-describedby-citeas-linkset-json-txt/linkset.txt"})
 
     def test_10_describedby_citeas_linkset_txt(self):
@@ -135,7 +135,7 @@ class TestResolverA2A(unittest.TestCase):
     def test_12_item_not_found(self):
         s = find_signposting_http(
             "https://w3id.org/a2a-fair-metrics/12-http-item-does-not-resolve/")
-        self.assertEqual({i.target for i in s.items}, 
+        self.assertEqual({i.target for i in s.items},
             {"https://s11.no/2022/a2a-fair-metrics/12-http-item-does-not-resolve/fake.ttl"})
         # .. which is  404 Not Found, but not our job to test
         self.assertEqual({None}, {i.type for i in s.items})
@@ -143,7 +143,7 @@ class TestResolverA2A(unittest.TestCase):
     def test_13_describedby(self):
         s = find_signposting_http(
             "https://w3id.org/a2a-fair-metrics/13-http-describedby-with-type/")
-        self.assertEqual({d.target for d in s.describedBy}, 
+        self.assertEqual({d.target for d in s.describedBy},
             {"https://s11.no/2022/a2a-fair-metrics/13-http-describedby-with-type/index.ttl"})
         self.assertEqual({d.type for d in s.describedBy}, {"text/turtle"})
 
@@ -152,11 +152,11 @@ class TestResolverA2A(unittest.TestCase):
             "https://w3id.org/a2a-fair-metrics/14-http-describedby-citeas-linkset-json-txt-conneg/")
         self.assertEqual(s.citeAs.target,
                          "https://w3id.org/a2a-fair-metrics/14-http-describedby-citeas-linkset-json-txt-conneg/")
-        self.assertEqual({d.target for d in s.describedBy}, 
+        self.assertEqual({d.target for d in s.describedBy},
             {"https://s11.no/2022/a2a-fair-metrics/14-http-describedby-citeas-linkset-json-txt-conneg/index.ttl"})
         self.assertEqual({d.type for d in s.describedBy}, {"text/turtle"})
         self.assertEqual({l.type for l in s.linksets}, {"application/linkset+json", "application/linkset"})
-        self.assertEqual({l.target for l in s.linksets}, 
+        self.assertEqual({l.target for l in s.linksets},
             {"https://s11.no/2022/a2a-fair-metrics/14-http-describedby-citeas-linkset-json-txt-conneg/linkset",
              "https://s11.no/2022/a2a-fair-metrics/14-http-describedby-citeas-linkset-json-txt-conneg/linkset"})
 
@@ -173,7 +173,7 @@ class TestResolverA2A(unittest.TestCase):
             "https://w3id.org/a2a-fair-metrics/16-http-describedby-conneg/")
         self.assertEqual({d.target for d in s.describedBy},  # twice in set
             {"https://s11.no/2022/a2a-fair-metrics/16-http-describedby-conneg/metadata"})
-        self.assertEqual({d.type for d in s.describedBy}, 
+        self.assertEqual({d.type for d in s.describedBy},
             # .. e.g. have to content-negotiate
             {"text/turtle", "application/ld+json"})
 
@@ -185,7 +185,7 @@ class TestResolverA2A(unittest.TestCase):
         self.assertEqual(s.citeAs.rel, LinkRel.cite_as)
         # Note: We preserve the remaining rel's under the Link
         self.assertEqual(s.citeAs.link.rel,
-                         set(("canonical", "cite-as", "http://schema.org/identifier")))
+                         {"canonical", "cite-as", "http://schema.org/identifier"})
 
     def test_18_html_only(self):
         s = find_signposting_http(
@@ -273,7 +273,7 @@ class TestResolverA2A(unittest.TestCase):
             "https://w3id.org/a2a-fair-metrics/27-http-linkset-json-only/")
         self.assertIsNone(s.citeAs)
         self.assertEqual(set(), s.describedBy)
-        self.assertEqual({l.target for l in s.linksets}, 
+        self.assertEqual({l.target for l in s.linksets},
             {"https://s11.no/2022/a2a-fair-metrics/27-http-linkset-json-only/linkset.json"})
         self.assertEqual({l.type for l in s.linksets}, {"application/linkset+json"})
         # TODO: Check content of linkset
@@ -284,7 +284,7 @@ class TestResolverA2A(unittest.TestCase):
             "https://w3id.org/a2a-fair-metrics/28-http-linkset-txt-only/")
         self.assertIsNone(s.citeAs)
         self.assertEqual(set(), s.describedBy)
-        self.assertEqual({l.target for l in s.linksets}, 
+        self.assertEqual({l.target for l in s.linksets},
             {"https://s11.no/2022/a2a-fair-metrics/28-http-linkset-txt-only/linkset.txt"})
         self.assertEqual({l.type for l in s.linksets}, {"application/linkset"})
         # TODO: Check content of linkset

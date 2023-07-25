@@ -21,18 +21,19 @@ USAGE:
     signposting
 """
 
-from typing import Collection
 import argparse
-import sys
 import enum
+import sys
+from typing import Collection
 from urllib.error import HTTPError, URLError
 
-from . import find_signposting_http, Signpost
+from . import Signpost, find_signposting_http
+
 
 def _multiline(header: str, lines: Collection[str]):
     """Format header, with subsequent lines indented correspondingly"""
     indent = "\n" + (" " * (len(header) + 2))
-    return "%s: %s" % (header, indent.join(lines))
+    return f"{header}: {indent.join(lines)}"
 
 
 def _target(s: Signpost):
@@ -42,7 +43,7 @@ def _target(s: Signpost):
 
 def _target_and_type(s: Signpost):
     """Format target and type"""
-    return "<%s> %s" % (s.target,
+    return "<{}> {}".format(s.target,
                         s.type or "")
 
 errors = enum.IntEnum("Error",
@@ -58,10 +59,7 @@ def main(*args: str):
     parser = argparse.ArgumentParser()
     parser.add_argument("url", nargs='+',
                         help="URL(s) to discover signposting for")
-    if args:
-        parsed = parser.parse_args(args)
-    else:
-        parsed = parser.parse_args()
+    parsed = parser.parse_args(args) if args else parser.parse_args()
     isFirst = True
     for url in parsed.url:
         if isFirst:

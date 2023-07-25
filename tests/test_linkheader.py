@@ -18,8 +18,10 @@
 
 import unittest
 
-from signposting import linkheader
 from httplink import parse_link_header
+
+from signposting import linkheader
+
 
 def _first(iterable):
     for v in iterable:

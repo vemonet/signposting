@@ -20,11 +20,10 @@ Resolve a URI (possibly a PID) to find FAIR Signposting
 
 import urllib.request
 import warnings
+from typing import List
 
 from . import linkheader
 from .signpost import Signposting
-
-from typing import List
 
 
 class _HTTPErrorHandler(urllib.request.HTTPDefaultErrorHandler):
